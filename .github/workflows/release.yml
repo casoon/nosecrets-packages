@@ -98,7 +98,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           registry-url: https://registry.npmjs.org
 
       - name: Update version
@@ -107,9 +107,7 @@ jobs:
           npm version ${{ inputs.version }} --no-git-tag-version
           sed -i "s/VERSION = .*/VERSION = \"${{ inputs.version }}\";/" scripts/install.js
 
-      - name: Publish to npm with provenance
+      - name: Publish to npm (Trusted Publishing)
         run: |
           cd packages/npm
           npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
