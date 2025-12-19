@@ -109,7 +109,7 @@ jobs:
       - name: Update version
         run: |
           cd packages/npm
-          npm version ${{ env.VERSION }} --no-git-tag-version
+          npm version ${{ env.VERSION }} --no-git-tag-version --allow-same-version
           sed -i "s/VERSION = .*/VERSION = \"${{ env.VERSION }}\";/" scripts/install.js
 
       - name: Publish to npm (Trusted Publishing)
