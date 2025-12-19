@@ -28,5 +28,9 @@
   ],
   "engines": {
     "node": ">=16"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to release (e.g., 0.1.0)'
+        description: Version to release (e.g., 0.1.0)
         required: true
         type: string
 
@@ -42,13 +42,13 @@ jobs:
         run: cargo install cross
 
       - name: Build
+        shell: bash
         run: |
           if [ "${{ matrix.target }}" = "aarch64-unknown-linux-gnu" ]; then
             cross build --release --target ${{ matrix.target }}
           else
             cargo build --release --target ${{ matrix.target }}
           fi
-        shell: bash
 
       - name: Package (Unix)
         if: runner.os != 'Windows'
@@ -90,6 +90,9 @@ jobs:
   npm:
     needs: release
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
 
@@ -102,11 +105,11 @@ jobs:
         run: |
           cd packages/npm
           npm version ${{ inputs.version }} --no-git-tag-version
-          sed -i 's/VERSION = ".*"/VERSION = "${{ inputs.version }}"/' scripts/install.js
+          sed -i "s/VERSION = .*/VERSION = \"${{ inputs.version }}\";/" scripts/install.js
 
-      - name: Publish to npm
+      - name: Publish to npm with provenance
         run: |
           cd packages/npm
-          npm publish --access public
+          npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
