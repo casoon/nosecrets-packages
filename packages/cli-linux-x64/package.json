@@ -1,6 +1,6 @@
 {
   "name": "@casoon/nosecrets-linux-x64",
-  "version": "0.1.2",
+  "version": "0.1.6",
   "description": "nosecrets binary for linux-x64",
   "license": "MIT",
   "repository": {

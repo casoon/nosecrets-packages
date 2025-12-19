@@ -1,6 +1,6 @@
 {
   "name": "@casoon/nosecrets",
-  "version": "0.1.2",
+  "version": "0.1.6",
   "description": "Fast, offline secret scanner for Git pre-commit hooks",
   "license": "MIT",
   "repository": {
@@ -26,11 +26,11 @@
     "node": ">=16"
   },
   "optionalDependencies": {
-    "@casoon/nosecrets-darwin-arm64": "0.1.2",
-    "@casoon/nosecrets-darwin-x64": "0.1.2",
-    "@casoon/nosecrets-linux-arm64": "0.1.2",
-    "@casoon/nosecrets-linux-x64": "0.1.2",
-    "@casoon/nosecrets-win32-x64": "0.1.2"
+    "@casoon/nosecrets-darwin-arm64": "0.1.6",
+    "@casoon/nosecrets-darwin-x64": "0.1.6",
+    "@casoon/nosecrets-linux-arm64": "0.1.6",
+    "@casoon/nosecrets-linux-x64": "0.1.6",
+    "@casoon/nosecrets-win32-x64": "0.1.6"
   },
   "publishConfig": {
     "access": "public"

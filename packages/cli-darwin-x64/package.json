@@ -1,6 +1,6 @@
 {
   "name": "@casoon/nosecrets-darwin-x64",
-  "version": "0.1.2",
+  "version": "0.1.6",
   "description": "nosecrets binary for darwin-x64",
   "license": "MIT",
   "repository": {
