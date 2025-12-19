@@ -1,0 +1,22 @@
+{
+  "name": "@casoon/nosecrets-darwin-arm64",
+  "version": "0.1.2",
+  "description": "nosecrets binary for darwin-arm64",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/casoon/nosecrets-packages"
+  },
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "files": [
+    "nosecrets"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

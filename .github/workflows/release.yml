@@ -22,14 +22,19 @@ jobs:
         include:
           - target: x86_64-apple-darwin
             os: macos-latest
+            npm-pkg: cli-darwin-x64
           - target: aarch64-apple-darwin
             os: macos-latest
+            npm-pkg: cli-darwin-arm64
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
+            npm-pkg: cli-linux-x64
           - target: aarch64-unknown-linux-gnu
             os: ubuntu-latest
+            npm-pkg: cli-linux-arm64
           - target: x86_64-pc-windows-msvc
             os: windows-latest
+            npm-pkg: cli-win32-x64
 
     steps:
       - uses: actions/checkout@v4
@@ -74,6 +79,11 @@ jobs:
           name: nosecrets-${{ matrix.target }}
           path: nosecrets-${{ matrix.target }}.*
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: npm-${{ matrix.npm-pkg }}
+          path: target/${{ matrix.target }}/release/nosecrets${{ runner.os == 'Windows' && '.exe' || '' }}
+
   release:
     needs: build
     runs-on: ubuntu-latest
@@ -81,6 +91,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
+          pattern: nosecrets-*
           merge-multiple: true
 
       - name: Create GitHub Release
@@ -93,7 +104,55 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
   npm:
-    needs: release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      matrix:
+        include:
+          - pkg: cli-darwin-x64
+            artifact: npm-cli-darwin-x64
+          - pkg: cli-darwin-arm64
+            artifact: npm-cli-darwin-arm64
+          - pkg: cli-linux-x64
+            artifact: npm-cli-linux-x64
+          - pkg: cli-linux-arm64
+            artifact: npm-cli-linux-arm64
+          - pkg: cli-win32-x64
+            artifact: npm-cli-win32-x64
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: packages/${{ matrix.pkg }}
+
+      - name: Make binary executable
+        if: matrix.pkg != 'cli-win32-x64'
+        run: chmod +x packages/${{ matrix.pkg }}/nosecrets
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      - name: Update version
+        run: |
+          cd packages/${{ matrix.pkg }}
+          npm version ${{ env.VERSION }} --no-git-tag-version --allow-same-version
+
+      - name: Publish to npm
+        working-directory: packages/${{ matrix.pkg }}
+        run: npm publish --provenance --access public
+
+  npm-main:
+    needs: npm
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -109,13 +168,20 @@ jobs:
       - name: Update npm
         run: npm install -g npm@latest
 
-      - name: Update version
+      - name: Update versions
         run: |
           cd packages/npm
           npm version ${{ env.VERSION }} --no-git-tag-version --allow-same-version
-          sed -i "s/VERSION = .*/VERSION = \"${{ env.VERSION }}\";/" scripts/install.js
+          # Update optionalDependencies versions
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('package.json'));
+            Object.keys(pkg.optionalDependencies).forEach(k => {
+              pkg.optionalDependencies[k] = '${{ env.VERSION }}';
+            });
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
 
-      - name: Publish to npm (Trusted Publishing)
-        run: |
-          cd packages/npm
-          npm publish --provenance --access public
+      - name: Publish to npm
+        working-directory: packages/npm
+        run: npm publish --provenance --access public

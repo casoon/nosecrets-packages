@@ -1,0 +1,22 @@
+{
+  "name": "@casoon/nosecrets-linux-x64",
+  "version": "0.1.2",
+  "description": "nosecrets binary for linux-x64",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/casoon/nosecrets-packages"
+  },
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "files": [
+    "nosecrets"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}
