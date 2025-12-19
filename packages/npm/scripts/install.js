@@ -46,22 +46,33 @@ function download(url, dest) {
 
 async function install() {
   console.log("Downloading nosecrets v" + VERSION + " for " + platform + "...");
-  
+
   await download(url, archivePath);
-  
+
   if (artifact.endsWith(".tar.gz")) {
     execSync("tar -xzf " + archivePath + " -C " + binDir, { stdio: "inherit" });
   } else if (artifact.endsWith(".zip")) {
     execSync("unzip -o " + archivePath + " -d " + binDir, { stdio: "inherit" });
   }
-  
+
   fs.unlinkSync(archivePath);
+
+  // Rename binary to nosecrets-bin to avoid conflicts with the Node.js wrapper
+  // npm/pnpm create wrapper scripts for bin entries, so we need a different name
+  const extractedBinary = path.join(binDir, process.platform === "win32" ? "nosecrets.exe" : "nosecrets");
+  const targetBinary = path.join(binDir, process.platform === "win32" ? "nosecrets-bin.exe" : "nosecrets-bin");
   
-  const binary = path.join(binDir, process.platform === "win32" ? "nosecrets.exe" : "nosecrets");
-  if (process.platform !== "win32") {
-    fs.chmodSync(binary, 0o755);
+  // Remove old target if it exists
+  if (fs.existsSync(targetBinary)) {
+    fs.unlinkSync(targetBinary);
   }
   
+  fs.renameSync(extractedBinary, targetBinary);
+  
+  if (process.platform !== "win32") {
+    fs.chmodSync(targetBinary, 0o755);
+  }
+
   console.log("nosecrets installed successfully!");
 }
 
